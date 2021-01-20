@@ -1,23 +1,53 @@
-.Maze {
-  background: aliceblue;
-  display: grid;
-  grid-template-columns: repeat(5, 70px);
-  grid-template-rows: repeat(5, 70px);
-  grid-gap: 2px;
-  border: 2px solid aliceblue;
-  div {
-    background: #282c34;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.MazeContainer{
+  .maze {
+    background: aliceblue;
+    display: grid;
+    grid-template-columns: repeat(10, 70px);
+    grid-template-rows: repeat(10, 70px);
+    grid-gap: 2px;
+    border: 2px solid aliceblue;
+    div {
+      background: #282c34;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+    }
+    .path{
+      background: rgba(255, 0, 0, 0.5);
+    }
+    .openPath{
+      background: #ff0000;
+    }
+    .start, .finish{
+      background: rgba(0, 128, 0, 0.5);
+    }
+    .openStart, .openFinish{
+      background: #008000;
+    }
+    .open{
+      background: darkblue;
+    }
+    .wall{
+      background: #282c34;
+    }
   }
-  .opened{
-    background: red;
-  }
-  .start{
-    background: green;
-  }
-  .finish{
 
+  .manegeButtons{
+    display: grid;
+    grid-template-columns: repeat(4, 70px);
+    grid-template-rows: repeat(1, 70px);
+    grid-gap: 2px;
+    justify-content: center;
+    .open{
+      background: darkblue;
+    }
+    .start, .finish{
+      background: green;
+    }
+    div{
+      border: 2px solid aliceblue;
+    }
   }
 }
+
