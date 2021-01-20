@@ -1,0 +1,23 @@
+.Maze {
+  background: aliceblue;
+  display: grid;
+  grid-template-columns: repeat(5, 70px);
+  grid-template-rows: repeat(5, 70px);
+  grid-gap: 2px;
+  border: 2px solid aliceblue;
+  div {
+    background: #282c34;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .opened{
+    background: red;
+  }
+  .start{
+    background: green;
+  }
+  .finish{
+
+  }
+}
