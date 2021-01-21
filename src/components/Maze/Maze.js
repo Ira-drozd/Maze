@@ -1,63 +1,46 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import classes from "./Maze.module.scss";
 
-const Maze = (props) => {
-  const [startIndex, setStartIndex] = useState(null); //
-  // const [finishIndex, setFinishIndex] = useState([]); //
+const Maze = () => {
+  const [startIndex, setStartIndex] = useState(null);
+  const [setting, setSetting] = useState({
+    x: 10,
+    y: 10,
+    maxIterations: 100,
+    start: 98,
+    finish: 0,
+    open: 99,
+    wall: 100,
+  });
   const [buildParams, setBuildParams] = useState({
     name: "start",
-    value: 14,
+    value: setting.start,
   });
-  const maxIterations = 23;
+  const [error, setError] = useState(null);
 
-  const createCleanMaze = () => {
-    const x = 10;
-    const y = 10;
+  const createCleanMaze = (x, y, wall) => {
     const sizeX = [
-      ...Array.from(Array(x).fill([...Array.from(Array(x).keys())])),
+      ...Array.from(Array(y).fill([...Array.from(Array(x).keys())])),
     ].flat();
 
     const sizeY = [...Array.from(Array(y))]
       .map((value, index) => {
-        return (value = [...Array.from(Array(y).fill(index))]);
+        return (value = [...Array.from(Array(x).fill(index))]);
       })
       .flat();
 
-    // const test = [
-    //   ...Array.from(
-    //     Array(y).fill([
-    //       ...Array.from(Array(y).fill(0)),
-    //       ...Array.from(Array(y).fill(1)),
-    //       ...Array.from(Array(y).fill(2)),
-    //       ...Array.from(Array(y).fill(3)),
-    //       ...Array.from(Array(y).fill(4)),
-    //     ])
-    //   ),
-    // ].flat();
-    //console.log("ttttest", test1);
-
-    // const sizeY = [
-    //   ...Array.from(Array(5).fill(0)),
-    //   ...Array.from(Array(5).fill(1)),
-    //   ...Array.from(Array(5).fill(2)),
-    //   ...Array.from(Array(5).fill(3)),
-    //   ...Array.from(Array(5).fill(4)),
-    // ];
-
-    console.log(sizeX);
     const cleanMaze = [...Array.from(Array(x * y).keys())].map((key) => ({
       x: sizeX[key],
       y: sizeY[key],
-      value: 16,
+      value: wall,
       flag: "wall",
     }));
     return cleanMaze;
   };
 
-  const [maze, setMaze] = useState(createCleanMaze());
-  // useEffect(() => {
-  //   setMaze(() => createCleanMaze());
-  // }, []);
+  const [maze, setMaze] = useState(
+    createCleanMaze(setting.x, setting.y, setting.wall)
+  );
 
   const getNeighbors = (startPositions) => {
     const neighbors = [];
@@ -117,8 +100,6 @@ const Maze = (props) => {
     );
   };
 
-  // const getA
-
   const getStartPositions = (counter, workedMaze) => {
     const startPositions = [];
     workedMaze.forEach((value, index) => {
@@ -130,35 +111,32 @@ const Maze = (props) => {
   };
 
   const wavePropagation = (counter, workedMaze) => {
-    if (counter > maxIterations) {
-      console.log("false counter > maxIterations");
+    if (counter > setting.maxIterations) {
+      console.log("counter > maxIterations");
       return false;
     } else {
-      /*if (counter === 23) {
-      //
-      console.log("true counter");
-      return true;
-    }*/
-      const startPositions = getStartPositions(counter, workedMaze); //===
+      const startPositions = getStartPositions(counter, workedMaze);
       if (!startPositions.length) {
         getResult(workedMaze, startIndex);
-        console.log("false startPositions");
+        console.log("empty startPositions");
         return false;
       } else {
         const neighbors = getNeighbors(startPositions);
 
         const updatedMaze = workedMaze.map((value, index) => {
-          if (neighbors.includes(index) && value.value === 0) {
+          if (neighbors.includes(index) && value.value === setting.finish) {
             return { ...value, flag: "finish" };
           }
           if (
             neighbors.includes(startIndex) &&
             index === startIndex &&
-            value.value === 14
+            value.value === setting.start
           ) {
             return { ...value, value: counter + 1, flag: "start" };
-          } else if (neighbors.includes(index) && value.value === 15) {
-            //15
+          } else if (
+            neighbors.includes(index) &&
+            value.value === setting.open
+          ) {
             return { ...value, value: counter + 1, flag: "path" };
           } else return value;
         });
@@ -170,61 +148,65 @@ const Maze = (props) => {
   };
 
   const buildMaze = (selectedIndex) => {
+    if (buildParams === null) {
+      return false;
+    }
     if (buildParams.name === "start") {
-      const prevStart = maze.findIndex((value) => value.value === 14);
-      console.log(prevStart);
+      const prevStart = maze.findIndex(
+        (value) => value.value === setting.start
+      );
       const updatedMaze = maze.map((value, index) => {
         if (index === prevStart) {
-          return { ...value, value: 16, flag: "build" };
+          return { ...value, value: setting.wall, flag: "build" };
         }
         if (index === selectedIndex) {
           setStartIndex(selectedIndex);
-          return { ...value, value: 14, flag: "start" };
+          return { ...value, value: buildParams.value, flag: buildParams.name };
         } else return value;
       });
       setMaze(updatedMaze);
     } else {
       const updatedMaze = maze.map((value, index) => {
         if (index === selectedIndex) {
-          // if (buildParams.name === "finish") {
-          //   //setFinishIndex((prevState) => prevState.push(5)); //////////
-          //   console.log("dddddddddd", index);
-          // }
-          return { ...value, value: buildParams.value, flag: buildParams.name };
+          if (
+            getNeighbors([selectedIndex]).length !== 4 &&
+            buildParams.name !== "wall"
+          ) {
+            return { ...value, flag: "finish", value: setting.finish };
+          } else
+            return {
+              ...value,
+              value: buildParams.value,
+              flag: buildParams.name,
+            };
         } else return value;
       });
-
       setMaze(updatedMaze);
     }
   };
 
-  // useEffect(() => {
-  //   console.log("finishIndex", finishIndex);
-  // }, [finishIndex]);
-
   const getResult = (workedMaze, startIndex) => {
-    if (startIndex === null || workedMaze[startIndex].value === 0) {
-      //////////////////////
-      console.log("yuy need set start position");
+    if (startIndex === null) {
+      setError({
+        message: "You need RESTART maze and to set the starting position",
+      });
+    } else if (workedMaze[startIndex].value === setting.finish) {
+      setError({
+        message: "Finish! RESTART maze",
+      });
     } else {
-      const startElement = workedMaze[startIndex];
-      console.log(startElement);
       const neighbors = getNeighborsFlag(
         workedMaze,
         [startIndex],
         ["path", "finish"]
       );
-
-      /* const finish = neighbors.filter((pathIndex) => {
-        return workedMaze[pathIndex].flag === "finish";
-      });
-
-      console.log("finish", finish);*/
       if (neighbors.length === 0) {
-        console.log("not neighbors");
+        setError({ message: "No exit" });
       } else {
-        const minElement = neighbors.reduce(function (p, v) {
-          return workedMaze[p].value < workedMaze[v].value ? p : v;
+        const minElement = neighbors.reduce(function (first, second) {
+          return workedMaze[first].value < workedMaze[second].value
+            ? first
+            : second;
         });
 
         const updatedMaze = workedMaze.map((value, index) => {
@@ -232,70 +214,72 @@ const Maze = (props) => {
             return { ...value, flag: "openStart" };
           } else return value;
         });
-
         setMaze(updatedMaze);
         getResult(updatedMaze, minElement);
-
-        //     .reduce((pathIndex) => {
-        //   return {
-        //     value: workedMaze[pathIndex].value,
-        //     flag: workedMaze[pathIndex].flag,
-        //     index: pathIndex,
-        //   };
-        // });
-        console.log("minElement", minElement);
       }
-
-      console.log("neighbors end", neighbors);
     }
-    console.log(workedMaze);
-
-    //const startElement = workedMaze[startIndex];
-    // console.log("startIndexes", startElement);
+    setBuildParams(null);
   };
+
+  const restartMaze = () => {
+    setMaze(() => createCleanMaze(setting.x, setting.y, setting.wall));
+    setBuildParams({
+      name: "start",
+      value: setting.start,
+    });
+    setStartIndex(null);
+    setError(null);
+  };
+
+  const navbar = ["start", "open", "wall"].map((value, index) => {
+    const cls = [classes[value]];
+    if (buildParams && buildParams.name === value) {
+      cls.push(classes.selected);
+    }
+    return (
+      <button
+        className={cls.join(" ")}
+        key={index}
+        disabled={!!!buildParams}
+        onClick={() => setBuildParams({ name: value, value: setting[value] })}
+      >
+        {value}
+      </button>
+    );
+  });
 
   return (
     <div className={classes.MazeContainer}>
+      <div className={classes.errors}>{error && error.message}</div>
       <div className={classes.manegeButtons}>
-        {startIndex}
-        <div
-          className={classes.start}
-          onClick={() => setBuildParams({ name: "start", value: 14 })}
+        {navbar}
+        <div></div>
+        <button
+          className={classes.manage}
+          onClick={() => wavePropagation(0, maze)}
         >
-          start
-        </div>
-        <div
-          className={classes.finish}
-          onClick={() => setBuildParams({ name: "finish", value: 0 })}
-        >
-          finish
-        </div>
-        <div
-          className={classes.open}
-          onClick={() => setBuildParams({ name: "open", value: 15 })}
-        >
-          open
-        </div>
-        <div
-          className={classes.wall}
-          onClick={() => setBuildParams({ name: "wall", value: 16 })}
-        >
-          wall
-        </div>
+          RUN
+        </button>
+        <button className={classes.manage} onClick={() => restartMaze()}>
+          CLEAN
+        </button>
       </div>
-      <button onClick={() => wavePropagation(0, maze)}>Start</button>
-      <button onClick={() => setMaze(() => createCleanMaze())}>Clean</button>
-      <div className={classes.maze}>
+
+      <div
+        className={classes.maze}
+        style={{
+          gridTemplateColumns: `repeat(${setting.x}, 70px)`,
+          gridTemplateRows: `repeat(${setting.y}, 70px)`,
+        }}
+      >
         {maze.map((item, index) => (
           <div
             key={index}
             className={classes[item.flag]}
             onClick={() => buildMaze(index)}
           >
-            {item.value} {item.x} {item.y}
-            {item.flag}
-            <br />
-            {index}
+            {item.flag === "openStart" ? item.value : null}
+            {item.flag === "start" ? "START" : null}
           </div>
         ))}
       </div>

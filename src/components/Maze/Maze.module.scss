@@ -1,9 +1,21 @@
 .MazeContainer{
+  background-color: #282c34;
+  color: aliceblue;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  .errors{
+    height: 20px;
+    margin: 15px;
+  }
+
   .maze {
+    margin: 10px;
     background: aliceblue;
     display: grid;
-    grid-template-columns: repeat(10, 70px);
-    grid-template-rows: repeat(10, 70px);
     grid-gap: 2px;
     border: 2px solid aliceblue;
     div {
@@ -16,17 +28,17 @@
     .path{
       background: rgba(255, 0, 0, 0.5);
     }
-    .openPath{
-      background: #ff0000;
-    }
-    .start, .finish{
+    .start{
       background: rgba(0, 128, 0, 0.5);
     }
-    .openStart, .openFinish{
-      background: #008000;
+    .finish{
+      background: rgba(255, 0, 0, 0.5);
+    }
+    .openStart{
+      background: rgba(0, 128, 0, 0.5);
     }
     .open{
-      background: darkblue;
+      background: rgba(0, 0, 139, 0.5);
     }
     .wall{
       background: #282c34;
@@ -35,17 +47,27 @@
 
   .manegeButtons{
     display: grid;
-    grid-template-columns: repeat(4, 70px);
+    grid-template-columns: repeat(6, 70px);
     grid-template-rows: repeat(1, 70px);
     grid-gap: 2px;
     justify-content: center;
+
+    button{
+      color: aliceblue;
+    }
+    .manage{
+      color: #282c34;
+    }
     .open{
       background: darkblue;
     }
-    .start, .finish{
-      background: green;
+    .start{
+      background: rgba(0, 128, 0, 0.5);
     }
-    div{
+    .wall{
+      background: #282c34;
+    }
+    .selected{
       border: 2px solid aliceblue;
     }
   }
